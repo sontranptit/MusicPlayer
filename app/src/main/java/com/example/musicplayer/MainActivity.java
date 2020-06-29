@@ -219,10 +219,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 txtCurrentTime.setText(timeFormat.format(mediaPlayer.getCurrentPosition()));
-                handler.postDelayed(this, 1000);
                 seekBar.setProgress(mediaPlayer.getCurrentPosition() );
+                // check if finish
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        pos++;
+                        boolean check = mediaPlayer.isPlaying();
+                        if (pos > arrayListSong.size() - 1) {
+                            pos = 0;
+                        }
+                        mediaPlayer.stop();
+                        mediaPlayer.reset();
+                        initMediaPlayer();
+                        if (check) {
+                            mediaPlayer.start();
+                            btnPlay.setImageResource(R.drawable.stop);
+                        }
+                        mediaPlayer.start();
+                    }
+                });
+                handler.postDelayed(this, 100);
             }
-        }, 1000);
+        }, 100);
     }
 
     private ArrayList<Song> readSongs(File root) {
