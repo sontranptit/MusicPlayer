@@ -2,11 +2,8 @@ package com.example.musicplayer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,15 +13,11 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -38,15 +31,15 @@ public class HomeView extends Fragment {
     MediaPlayer mp;
     ArrayList<Song> arrayList;
     int pos;
+    boolean buttonPressed = false;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         init();
-
-
-        ((MainActivity)getActivity()).initMediaPlayer(pos);
+        pos = ((MainActivity)getActivity()).getPos();
+        ((MainActivity) getActivity()).initMediaPlayer(pos);
         //
         txtName.setText(arrayList.get(pos).getTitle());
         Bitmap tmpBitmap = null;
@@ -75,15 +68,18 @@ public class HomeView extends Fragment {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pos++;
+                buttonPressed = true;
+                pos = ((MainActivity)getActivity()).getPos();
                 boolean check = mp.isPlaying();
-                if (pos > arrayList.size() - 1) {
+                if (pos+1 > arrayList.size() - 1) {
                     pos = 0;
+                }else {
+                    pos++;
                 }
-                ((MainActivity)getActivity()).setPos(pos);
+                ((MainActivity) getActivity()).setPos(pos);
                 mp.stop();
                 mp.reset();
-                ((MainActivity)getActivity()).initMediaPlayer(pos);
+                ((MainActivity) getActivity()).initMediaPlayer(pos);
                 //
                 txtName.setText(arrayList.get(pos).getTitle());
                 Bitmap tmpBitmap = null;
@@ -105,15 +101,18 @@ public class HomeView extends Fragment {
         btnPrev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pos--;
+                buttonPressed = true;
                 boolean check = mp.isPlaying();
-                if (pos < 0) {
+                pos = ((MainActivity)getActivity()).getPos();
+                if (pos-1 < 0) {
                     pos = arrayList.size() - 1;
+                }else{
+                    pos--;
                 }
-                ((MainActivity)getActivity()).setPos(pos);
+                ((MainActivity) getActivity()).setPos(pos);
                 mp.stop();
                 mp.reset();
-                ((MainActivity)getActivity()).initMediaPlayer(pos);
+                ((MainActivity) getActivity()).initMediaPlayer(pos);
                 //
                 txtName.setText(arrayList.get(pos).getTitle());
                 Bitmap tmpBitmap = null;
@@ -166,7 +165,6 @@ public class HomeView extends Fragment {
     }
 
 
-
     private void init() {
         txtName = rootView.findViewById(R.id.textViewName);
         txtCurrentTime = rootView.findViewById(R.id.textViewCurrentTime);
@@ -178,9 +176,8 @@ public class HomeView extends Fragment {
         btnRep = rootView.findViewById(R.id.imageButtonRep);
         seekBar = rootView.findViewById(R.id.seekBar);
         imgCover = rootView.findViewById(R.id.imageCover);
-        mp = ((MainActivity)getActivity()).mediaPlayer;
-        pos = ((MainActivity)getActivity()).pos;
-        arrayList = ((MainActivity)getActivity()).arrayListSong;
+        mp = ((MainActivity) getActivity()).mediaPlayer;
+        arrayList = ((MainActivity) getActivity()).arrayListSong;
     }
 
     private void setTotalTimer() {
@@ -197,36 +194,43 @@ public class HomeView extends Fragment {
             public void run() {
                 txtCurrentTime.setText(timeFormat.format(mp.getCurrentPosition()));
                 seekBar.setProgress(mp.getCurrentPosition());
-                // check if finish
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        pos++;
-                        boolean check = mp.isPlaying();
-                        if (pos > arrayList.size() - 1) {
-                            pos = 0;
-                        }
-                        mp.stop();
-                        mp.reset();
-                        ((MainActivity)getActivity()).initMediaPlayer(pos);
-                        //
-                        txtName.setText(arrayList.get(pos).getTitle());
-                        Bitmap tmpBitmap = null;
-                        tmpBitmap = arrayList.get(pos).getBitmap();
-                        if (tmpBitmap != null) {
-                            imgCover.setImageBitmap(tmpBitmap);
-                        } else {
-                            imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
-                        }
-                        setTotalTimer();
-                        //
-                        if (check) {
-                            mp.start();
-                            btnPlay.setImageResource(R.drawable.stop);
-                        }
-                        mp.start();
+                if (buttonPressed){
+                    buttonPressed = false;
+                    txtName.setText(arrayList.get(pos).getTitle());
+                    Bitmap tmpBitmap = null;
+                    tmpBitmap = arrayList.get(pos).getBitmap();
+                    if (tmpBitmap != null) {
+                        imgCover.setImageBitmap(tmpBitmap);
+                    } else {
+                        imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
                     }
-                });
+                    setTotalTimer();
+                    //
+                    btnPlay.setImageResource(R.drawable.stop);
+                }else{
+                    if (mp.getCurrentPosition() == 0) {
+                        try {
+                            if (pos + 1 > arrayList.size() - 1) {
+                                pos = 0;
+                            } else {
+                                pos++;
+                            }
+                            txtName.setText(arrayList.get(pos).getTitle());
+                            Bitmap tmpBitmap = null;
+                            tmpBitmap = arrayList.get(pos).getBitmap();
+                            if (tmpBitmap != null) {
+                                imgCover.setImageBitmap(tmpBitmap);
+                            } else {
+                                imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+                            }
+                            setTotalTimer();
+                            btnPlay.setImageResource(R.drawable.stop);
+                        }catch (Exception e){
+
+                        }
+                    }
+                }
+
                 handler.postDelayed(this, 100);
             }
         }, 100);
@@ -236,8 +240,8 @@ public class HomeView extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (mp.isPlaying()){
-            pos = ((MainActivity)getActivity()).getPos();
+        if (mp.isPlaying()) {
+            pos = ((MainActivity) getActivity()).getPos();
 //            Toast.makeText(rootView.getContext(), "You called me! Current pos = " + pos, Toast.LENGTH_SHORT).show();
             txtName.setText(arrayList.get(pos).getTitle());
             Bitmap tmpBitmap = null;
@@ -256,5 +260,10 @@ public class HomeView extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 }

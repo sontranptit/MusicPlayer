@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     String[] supportedExtensions = {".mp3", ".m4a"};
     int pos = 0;
     MediaPlayer mediaPlayer = new MediaPlayer();
-    HomeView homeView;
-    Fragment homeFragment;
 
     private static final int MY_PERMISSION_REQUEST = 1;
 
@@ -53,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         arrayListSong = readSongs(Environment.getExternalStorageDirectory());
         createDrawerToggle();
         initMediaPlayer(0);
-        homeFragment = new HomeView();
         showDisplayWithIndex(0);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -79,7 +76,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                pos++;
+                if (pos > arrayListSong.size() - 1) {
+                    pos = 0;
+                }
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+                initMediaPlayer(pos);
+                mediaPlayer.start();
+            }
+        });
     }
 
 
@@ -88,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (index) {
             case 0: {
-                fragment = homeFragment;
+                fragment = new HomeView();
                 break;
             }
             case 1: {
