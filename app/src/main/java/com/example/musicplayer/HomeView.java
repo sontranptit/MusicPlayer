@@ -80,12 +80,17 @@ public class HomeView extends Fragment {
             @Override
             public void onClick(View view) {
                 buttonPressed = true;
-                pos = ((MainActivity)getActivity()).pos;
                 boolean check = mp.isPlaying();
-                if (pos+1 > arrayList.size() - 1) {
-                    pos = 0;
+                if (shuffleMode){
+                    pos = ((MainActivity)getActivity()).shuffleNext();
+                    Toast.makeText(rootView.getContext(), "Next id: " + pos, Toast.LENGTH_SHORT).show();
                 }else {
-                    pos++;
+                    pos = ((MainActivity)getActivity()).pos;
+                    if (pos+1 > arrayList.size() - 1) {
+                        pos = 0;
+                    }else {
+                        pos++;
+                    }
                 }
                 ((MainActivity) getActivity()).setPos(pos);
                 mp.stop();
@@ -149,10 +154,12 @@ public class HomeView extends Fragment {
                     Toast.makeText(rootView.getContext(), "Shuffle is OFF", Toast.LENGTH_SHORT).show();
                     btnShuffle.setImageResource(R.drawable.no_shuffle);
                     ((MainActivity)getActivity()).setShuffle(false);
+                    shuffleMode = false;
                 }else{
                     Toast.makeText(rootView.getContext(), "Shuffle is ON", Toast.LENGTH_SHORT).show();
                     btnShuffle.setImageResource(R.drawable.shuffle);
                     ((MainActivity)getActivity()).setShuffle(true);
+                    shuffleMode = true;
                 }
             }
         });
@@ -242,10 +249,14 @@ public class HomeView extends Fragment {
                     }else{
                         if (mp.getCurrentPosition() == 0) {
                             try {
-                                if (pos + 1 > arrayList.size() - 1) {
-                                    pos = 0;
-                                } else {
-                                    pos++;
+                                if (shuffleMode){
+                                    // just get the current pos
+                                }else {
+                                    if (pos + 1 > arrayList.size() - 1) {
+                                        pos = 0;
+                                    } else {
+                                        pos++;
+                                    }
                                 }
                                 txtName.setText(arrayList.get(pos).getTitle());
                                 Bitmap tmpBitmap = null;

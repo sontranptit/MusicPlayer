@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (isShuffle){
                     // no repeat, just shuffle
                     // call shuffle method
+                    pos = shuffleNext();
                 }else {
                     // no repeat, no shuffle
                     pos++;
@@ -232,5 +234,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    public int shuffleNext(){
+        Random r = new Random();
+        int x;
+        do {
+            x = r.nextInt(arrayListSong.size());
+        } while ( (x == pos) || ( x < 0) || (x > arrayListSong.size()-1 ));
+        return x;
+    }
 }
