@@ -238,7 +238,7 @@ public class HomeView extends Fragment {
         super.onResume();
         if (mp.isPlaying()){
             pos = ((MainActivity)getActivity()).getPos();
-            Toast.makeText(rootView.getContext(), "You called me! Current pos = " + pos, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(rootView.getContext(), "You called me! Current pos = " + pos, Toast.LENGTH_SHORT).show();
             txtName.setText(arrayList.get(pos).getTitle());
             Bitmap tmpBitmap = null;
             tmpBitmap = arrayList.get(pos).getBitmap();
