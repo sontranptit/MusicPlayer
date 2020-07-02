@@ -1,5 +1,6 @@
 package com.example.musicplayer;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
@@ -14,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
@@ -30,29 +32,40 @@ public class HomeView extends Fragment {
     View rootView;
     TextView txtName, txtCurrentTime, txtTotalTime;
     ImageButton btnShuffle, btnPrev, btnPlay, btnNext, btnRep;
-    ViewSwitcher viewSwitcher;
     ImageView imgCover;
     SeekBar seekBar;
-    MediaPlayer mediaPlayer = new MediaPlayer();
-    ArrayList<Song> arrayListSong = new ArrayList<>();
-    String[] supportedExtensions = {".mp3", ".m4a"};
-    int pos = 0;
+    //
+    MediaPlayer mp;
+    ArrayList<Song> arrayList;
+    int pos;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         init();
-        arrayListSong = readSongs(Environment.getExternalStorageDirectory());
-        initMediaPlayer();
+
+
+        ((MainActivity)getActivity()).initMediaPlayer(pos);
+        //
+        txtName.setText(arrayList.get(pos).getTitle());
+        Bitmap tmpBitmap = null;
+        tmpBitmap = arrayList.get(pos).getBitmap();
+        if (tmpBitmap != null) {
+            imgCover.setImageBitmap(tmpBitmap);
+        } else {
+            imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+        }
+        setTotalTimer();
+        //
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
+                if (mp.isPlaying()) {
+                    mp.pause();
                     btnPlay.setImageResource(R.drawable.play);
                 } else {
-                    mediaPlayer.start();
+                    mp.start();
                     btnPlay.setImageResource(R.drawable.stop);
                 }
                 updateSongProgress();
@@ -63,15 +76,27 @@ public class HomeView extends Fragment {
             @Override
             public void onClick(View view) {
                 pos++;
-                boolean check = mediaPlayer.isPlaying();
-                if (pos > arrayListSong.size() - 1) {
+                boolean check = mp.isPlaying();
+                if (pos > arrayList.size() - 1) {
                     pos = 0;
                 }
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-                initMediaPlayer();
+                ((MainActivity)getActivity()).setPos(pos);
+                mp.stop();
+                mp.reset();
+                ((MainActivity)getActivity()).initMediaPlayer(pos);
+                //
+                txtName.setText(arrayList.get(pos).getTitle());
+                Bitmap tmpBitmap = null;
+                tmpBitmap = arrayList.get(pos).getBitmap();
+                if (tmpBitmap != null) {
+                    imgCover.setImageBitmap(tmpBitmap);
+                } else {
+                    imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+                }
+                setTotalTimer();
+                //
                 if (check) {
-                    mediaPlayer.start();
+                    mp.start();
                     btnPlay.setImageResource(R.drawable.stop);
                 }
             }
@@ -81,15 +106,27 @@ public class HomeView extends Fragment {
             @Override
             public void onClick(View view) {
                 pos--;
-                boolean check = mediaPlayer.isPlaying();
+                boolean check = mp.isPlaying();
                 if (pos < 0) {
-                    pos = arrayListSong.size() - 1;
+                    pos = arrayList.size() - 1;
                 }
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-                initMediaPlayer();
+                ((MainActivity)getActivity()).setPos(pos);
+                mp.stop();
+                mp.reset();
+                ((MainActivity)getActivity()).initMediaPlayer(pos);
+                //
+                txtName.setText(arrayList.get(pos).getTitle());
+                Bitmap tmpBitmap = null;
+                tmpBitmap = arrayList.get(pos).getBitmap();
+                if (tmpBitmap != null) {
+                    imgCover.setImageBitmap(tmpBitmap);
+                } else {
+                    imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+                }
+                setTotalTimer();
+                //
                 if (check) {
-                    mediaPlayer.start();
+                    mp.start();
                     btnPlay.setImageResource(R.drawable.stop);
                 }
             }
@@ -122,29 +159,13 @@ public class HomeView extends Fragment {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mediaPlayer.seekTo(seekBar.getProgress());
+                mp.seekTo(seekBar.getProgress());
             }
         });
         return rootView;
     }
 
-    private void initMediaPlayer() {
-        try {
-            mediaPlayer.setDataSource(arrayListSong.get(pos).getFile());
-            mediaPlayer.prepare();
-            txtName.setText(arrayListSong.get(pos).getTitle());
-            Bitmap tmpBitmap = null;
-            tmpBitmap = arrayListSong.get(pos).getBitmap();
-            if (tmpBitmap != null) {
-                imgCover.setImageBitmap(tmpBitmap);
-            } else {
-                imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
-            }
-            setTotalTimer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 
     private void init() {
         txtName = rootView.findViewById(R.id.textViewName);
@@ -157,12 +178,15 @@ public class HomeView extends Fragment {
         btnRep = rootView.findViewById(R.id.imageButtonRep);
         seekBar = rootView.findViewById(R.id.seekBar);
         imgCover = rootView.findViewById(R.id.imageCover);
+        mp = ((MainActivity)getActivity()).mediaPlayer;
+        pos = ((MainActivity)getActivity()).pos;
+        arrayList = ((MainActivity)getActivity()).arrayListSong;
     }
 
     private void setTotalTimer() {
         SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss");
-        txtTotalTime.setText(timeFormat.format(mediaPlayer.getDuration()));
-        seekBar.setMax(mediaPlayer.getDuration());
+        txtTotalTime.setText(timeFormat.format(mp.getDuration()));
+        seekBar.setMax(mp.getDuration());
     }
 
     private void updateSongProgress() {
@@ -171,25 +195,36 @@ public class HomeView extends Fragment {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                txtCurrentTime.setText(timeFormat.format(mediaPlayer.getCurrentPosition()));
-                seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                txtCurrentTime.setText(timeFormat.format(mp.getCurrentPosition()));
+                seekBar.setProgress(mp.getCurrentPosition());
                 // check if finish
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
                         pos++;
-                        boolean check = mediaPlayer.isPlaying();
-                        if (pos > arrayListSong.size() - 1) {
+                        boolean check = mp.isPlaying();
+                        if (pos > arrayList.size() - 1) {
                             pos = 0;
                         }
-                        mediaPlayer.stop();
-                        mediaPlayer.reset();
-                        initMediaPlayer();
+                        mp.stop();
+                        mp.reset();
+                        ((MainActivity)getActivity()).initMediaPlayer(pos);
+                        //
+                        txtName.setText(arrayList.get(pos).getTitle());
+                        Bitmap tmpBitmap = null;
+                        tmpBitmap = arrayList.get(pos).getBitmap();
+                        if (tmpBitmap != null) {
+                            imgCover.setImageBitmap(tmpBitmap);
+                        } else {
+                            imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+                        }
+                        setTotalTimer();
+                        //
                         if (check) {
-                            mediaPlayer.start();
+                            mp.start();
                             btnPlay.setImageResource(R.drawable.stop);
                         }
-                        mediaPlayer.start();
+                        mp.start();
                     }
                 });
                 handler.postDelayed(this, 100);
@@ -197,45 +232,29 @@ public class HomeView extends Fragment {
         }, 100);
     }
 
-    private ArrayList<Song> readSongs(File root) {
-        ArrayList<Song> temp = new ArrayList<>();
-        File files[] = root.listFiles();
-
-        for (File f : files) {
-            if (f.isDirectory()) {
-                temp.addAll(readSongs(f));
-            } else {
-                for (int i = 0; i < supportedExtensions.length; i++) {
-                    if (f.getName().endsWith(supportedExtensions[i])) {
-                        String tmpPath = f.getAbsolutePath();
-                        String tmpName = f.getName();
-                        Bitmap bitmap = null;
-                        // try to extract bitmap using codes from stackoverflow. Edited a little bit
-                        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                        mmr.setDataSource(tmpPath);
-                        byte[] artBytes = mmr.getEmbeddedPicture();
-                        if (artBytes != null) {
-                            InputStream is = new ByteArrayInputStream(mmr.getEmbeddedPicture());
-                            bitmap = BitmapFactory.decodeStream(is);
-                        }
-//                        else
-//                        {
-//                            imgArt.setImageDrawable(getResources().getDrawable(R.drawable.adele));
-//                        }
-                        // ok it ends here
-                        temp.add(new Song(tmpName, tmpPath, bitmap));
-                    }
-                }
-
-            }
-        }
-        return temp;
-    }
 
     @Override
     public void onResume() {
         super.onResume();
-
+        if (mp.isPlaying()){
+            pos = ((MainActivity)getActivity()).getPos();
+            Toast.makeText(rootView.getContext(), "You called me! Current pos = " + pos, Toast.LENGTH_SHORT).show();
+            txtName.setText(arrayList.get(pos).getTitle());
+            Bitmap tmpBitmap = null;
+            tmpBitmap = arrayList.get(pos).getBitmap();
+            if (tmpBitmap != null) {
+                imgCover.setImageBitmap(tmpBitmap);
+            } else {
+                imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+            }
+            btnPlay.setImageResource(R.drawable.stop);
+            setTotalTimer();
+            updateSongProgress();
+        }
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+    }
 }
