@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     // no repeat, just shuffle
                     // call shuffle method
                     pos = shuffleNext();
+//                    Toast.makeText(MainActivity.this, "Auto jump to pos: "  + pos, Toast.LENGTH_SHORT).show();
                 }else {
                     // no repeat, no shuffle
                     pos++;

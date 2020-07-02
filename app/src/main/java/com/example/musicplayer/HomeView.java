@@ -230,9 +230,7 @@ public class HomeView extends Fragment {
             public void run() {
                 txtCurrentTime.setText(timeFormat.format(mp.getCurrentPosition()));
                 seekBar.setProgress(mp.getCurrentPosition());
-                if (repeatMode){
-
-                }else {
+                if (!repeatMode){
                     if (buttonPressed){
                         buttonPressed = false;
                         txtName.setText(arrayList.get(pos).getTitle());
@@ -251,6 +249,7 @@ public class HomeView extends Fragment {
                             try {
                                 if (shuffleMode){
                                     // just get the current pos
+                                    pos = ((MainActivity)getActivity()).pos;
                                 }else {
                                     if (pos + 1 > arrayList.size() - 1) {
                                         pos = 0;
@@ -258,6 +257,7 @@ public class HomeView extends Fragment {
                                         pos++;
                                     }
                                 }
+//                                Toast.makeText(rootView.getContext(), "Here! + " + pos, Toast.LENGTH_SHORT).show();
                                 txtName.setText(arrayList.get(pos).getTitle());
                                 Bitmap tmpBitmap = null;
                                 tmpBitmap = arrayList.get(pos).getBitmap();
@@ -274,8 +274,6 @@ public class HomeView extends Fragment {
                         }
                     }
                 }
-
-
                 handler.postDelayed(this, 100);
             }
         }, 100);
