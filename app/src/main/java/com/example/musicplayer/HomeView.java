@@ -31,14 +31,25 @@ public class HomeView extends Fragment {
     MediaPlayer mp;
     ArrayList<Song> arrayList;
     int pos;
-    boolean buttonPressed = false;
-
+    boolean buttonPressed, repeatMode, shuffleMode = false;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         init();
-        pos = ((MainActivity)getActivity()).getPos();
+        repeatMode = ((MainActivity)getActivity()).isRepeat;
+        shuffleMode = ((MainActivity)getActivity()).isShuffle;
+        if (repeatMode){
+            btnRep.setImageResource(R.drawable.repeat);
+        }else{
+            btnRep.setImageResource(R.drawable.no_repeat);
+        }
+        if (shuffleMode){
+            btnShuffle.setImageResource(R.drawable.shuffle);
+        }else{
+            btnShuffle.setImageResource(R.drawable.no_shuffle);
+        }
+        pos = ((MainActivity)getActivity()).pos;
         ((MainActivity) getActivity()).initMediaPlayer(pos);
         //
         txtName.setText(arrayList.get(pos).getTitle());
@@ -69,7 +80,7 @@ public class HomeView extends Fragment {
             @Override
             public void onClick(View view) {
                 buttonPressed = true;
-                pos = ((MainActivity)getActivity()).getPos();
+                pos = ((MainActivity)getActivity()).pos;
                 boolean check = mp.isPlaying();
                 if (pos+1 > arrayList.size() - 1) {
                     pos = 0;
@@ -103,7 +114,7 @@ public class HomeView extends Fragment {
             public void onClick(View view) {
                 buttonPressed = true;
                 boolean check = mp.isPlaying();
-                pos = ((MainActivity)getActivity()).getPos();
+                pos = ((MainActivity) getActivity()).pos;
                 if (pos-1 < 0) {
                     pos = arrayList.size() - 1;
                 }else{
@@ -134,14 +145,32 @@ public class HomeView extends Fragment {
         btnShuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (((MainActivity)getActivity()).isShuffle){
+                    Toast.makeText(rootView.getContext(), "Shuffle is OFF", Toast.LENGTH_SHORT).show();
+                    btnShuffle.setImageResource(R.drawable.no_shuffle);
+                    ((MainActivity)getActivity()).setShuffle(false);
+                }else{
+                    Toast.makeText(rootView.getContext(), "Shuffle is ON", Toast.LENGTH_SHORT).show();
+                    btnShuffle.setImageResource(R.drawable.shuffle);
+                    ((MainActivity)getActivity()).setShuffle(true);
+                }
             }
         });
 
         btnRep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                repeatMode = ((MainActivity)getActivity()).isRepeat;
+                if (repeatMode){
+                    Toast.makeText(rootView.getContext(), "Repeat is OFF", Toast.LENGTH_SHORT).show();
+                    btnRep.setImageResource(R.drawable.no_repeat);
+                    repeatMode = false;
+                }else{
+                    Toast.makeText(rootView.getContext(), "Repeat is ON", Toast.LENGTH_SHORT).show();
+                    btnRep.setImageResource(R.drawable.repeat);
+                    repeatMode = true;
+                }
+                ((MainActivity)getActivity()).setRepeat(repeatMode);
             }
         });
 
@@ -194,42 +223,47 @@ public class HomeView extends Fragment {
             public void run() {
                 txtCurrentTime.setText(timeFormat.format(mp.getCurrentPosition()));
                 seekBar.setProgress(mp.getCurrentPosition());
-                if (buttonPressed){
-                    buttonPressed = false;
-                    txtName.setText(arrayList.get(pos).getTitle());
-                    Bitmap tmpBitmap = null;
-                    tmpBitmap = arrayList.get(pos).getBitmap();
-                    if (tmpBitmap != null) {
-                        imgCover.setImageBitmap(tmpBitmap);
-                    } else {
-                        imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
-                    }
-                    setTotalTimer();
-                    //
-                    btnPlay.setImageResource(R.drawable.stop);
-                }else{
-                    if (mp.getCurrentPosition() == 0) {
-                        try {
-                            if (pos + 1 > arrayList.size() - 1) {
-                                pos = 0;
-                            } else {
-                                pos++;
-                            }
-                            txtName.setText(arrayList.get(pos).getTitle());
-                            Bitmap tmpBitmap = null;
-                            tmpBitmap = arrayList.get(pos).getBitmap();
-                            if (tmpBitmap != null) {
-                                imgCover.setImageBitmap(tmpBitmap);
-                            } else {
-                                imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
-                            }
-                            setTotalTimer();
-                            btnPlay.setImageResource(R.drawable.stop);
-                        }catch (Exception e){
+                if (repeatMode){
 
+                }else {
+                    if (buttonPressed){
+                        buttonPressed = false;
+                        txtName.setText(arrayList.get(pos).getTitle());
+                        Bitmap tmpBitmap = null;
+                        tmpBitmap = arrayList.get(pos).getBitmap();
+                        if (tmpBitmap != null) {
+                            imgCover.setImageBitmap(tmpBitmap);
+                        } else {
+                            imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+                        }
+                        setTotalTimer();
+                        //
+                        btnPlay.setImageResource(R.drawable.stop);
+                    }else{
+                        if (mp.getCurrentPosition() == 0) {
+                            try {
+                                if (pos + 1 > arrayList.size() - 1) {
+                                    pos = 0;
+                                } else {
+                                    pos++;
+                                }
+                                txtName.setText(arrayList.get(pos).getTitle());
+                                Bitmap tmpBitmap = null;
+                                tmpBitmap = arrayList.get(pos).getBitmap();
+                                if (tmpBitmap != null) {
+                                    imgCover.setImageBitmap(tmpBitmap);
+                                } else {
+                                    imgCover.setImageDrawable(getResources().getDrawable(R.drawable.music));
+                                }
+                                setTotalTimer();
+                                btnPlay.setImageResource(R.drawable.stop);
+                            }catch (Exception e){
+
+                            }
                         }
                     }
                 }
+
 
                 handler.postDelayed(this, 100);
             }
@@ -241,7 +275,7 @@ public class HomeView extends Fragment {
     public void onResume() {
         super.onResume();
         if (mp.isPlaying()) {
-            pos = ((MainActivity) getActivity()).getPos();
+            pos = ((MainActivity) getActivity()).pos;
 //            Toast.makeText(rootView.getContext(), "You called me! Current pos = " + pos, Toast.LENGTH_SHORT).show();
             txtName.setText(arrayList.get(pos).getTitle());
             Bitmap tmpBitmap = null;

@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     String[] supportedExtensions = {".mp3", ".m4a"};
     int pos = 0;
     MediaPlayer mediaPlayer = new MediaPlayer();
+    boolean isShuffle, isRepeat = false;
 
     private static final int MY_PERMISSION_REQUEST = 1;
 
@@ -79,9 +80,17 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                pos++;
-                if (pos > arrayListSong.size() - 1) {
-                    pos = 0;
+                if (isRepeat){
+                   // do nothing
+                } else if (isShuffle){
+                    // no repeat, just shuffle
+                    // call shuffle method
+                }else {
+                    // no repeat, no shuffle
+                    pos++;
+                    if (pos > arrayListSong.size() - 1) {
+                        pos = 0;
+                    }
                 }
                 mediaPlayer.stop();
                 mediaPlayer.reset();
@@ -90,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
     void showDisplayWithIndex(int index) {
         Fragment fragment = null;
@@ -122,13 +130,22 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    public int getPos() {
-        return pos;
-    }
-
     public void setPos(int pos) {
         this.pos = pos;
     }
+
+    public void setShuffle(boolean shuffle) {
+        isShuffle = shuffle;
+    }
+
+    public void setRepeat(boolean repeat) {
+        isRepeat = repeat;
+    }
+
+    public ActionBarDrawerToggle getToggle() {
+        return toggle;
+    }
+
 
     protected void findView() {
         drawerLayout = findViewById(R.id.drawerLayout);

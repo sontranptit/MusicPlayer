@@ -72,7 +72,7 @@
             android:layout_marginTop="15dp"
             android:background="@null"
             android:scaleType="fitCenter"
-            android:src="@drawable/shuffle" />
+            android:src="@drawable/no_shuffle" />
 
         <ImageButton
             android:id="@+id/imageButtonPrev"
@@ -109,7 +109,7 @@
             android:layout_marginTop="15dp"
             android:background="@null"
             android:scaleType="fitCenter"
-            android:src="@drawable/repeat" />
+            android:src="@drawable/no_repeat" />
     </LinearLayout>
 
 </LinearLayout>
