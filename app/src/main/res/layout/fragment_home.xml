@@ -36,8 +36,8 @@
             android:id="@+id/textViewCurrentTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="260dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="200dp"
             android:text="00:00"
             android:textSize="20sp" />
 
@@ -62,13 +62,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
 
         <ImageButton
             android:id="@+id/imageButtonShuffle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
             android:layout_marginTop="15dp"
             android:background="@null"
             android:scaleType="fitCenter"
@@ -76,8 +77,8 @@
 
         <ImageButton
             android:id="@+id/imageButtonPrev"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="20dp"
             android:background="@null"
             android:scaleType="fitCenter"
@@ -85,8 +86,8 @@
 
         <ImageButton
             android:id="@+id/imageButtonPlay"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="20dp"
             android:background="@null"
             android:scaleType="fitCenter"
@@ -94,8 +95,8 @@
 
         <ImageButton
             android:id="@+id/imageButtonNext"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="20dp"
             android:background="@null"
             android:scaleType="fitCenter"
@@ -103,8 +104,8 @@
 
         <ImageButton
             android:id="@+id/imageButtonRep"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
             android:background="@null"

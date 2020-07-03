@@ -32,24 +32,25 @@ public class HomeView extends Fragment {
     ArrayList<Song> arrayList;
     int pos;
     boolean buttonPressed, repeatMode, shuffleMode = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         init();
-        repeatMode = ((MainActivity)getActivity()).isRepeat;
-        shuffleMode = ((MainActivity)getActivity()).isShuffle;
-        if (repeatMode){
+        repeatMode = ((MainActivity) getActivity()).isRepeat;
+        shuffleMode = ((MainActivity) getActivity()).isShuffle;
+        if (repeatMode) {
             btnRep.setImageResource(R.drawable.repeat);
-        }else{
+        } else {
             btnRep.setImageResource(R.drawable.no_repeat);
         }
-        if (shuffleMode){
+        if (shuffleMode) {
             btnShuffle.setImageResource(R.drawable.shuffle);
-        }else{
+        } else {
             btnShuffle.setImageResource(R.drawable.no_shuffle);
         }
-        pos = ((MainActivity)getActivity()).pos;
+        pos = ((MainActivity) getActivity()).pos;
         ((MainActivity) getActivity()).initMediaPlayer(pos);
         //
         txtName.setText(arrayList.get(pos).getTitle());
@@ -81,14 +82,14 @@ public class HomeView extends Fragment {
             public void onClick(View view) {
                 buttonPressed = true;
                 boolean check = mp.isPlaying();
-                if (shuffleMode){
-                    pos = ((MainActivity)getActivity()).shuffleNext();
-                    Toast.makeText(rootView.getContext(), "Next id: " + pos, Toast.LENGTH_SHORT).show();
-                }else {
-                    pos = ((MainActivity)getActivity()).pos;
-                    if (pos+1 > arrayList.size() - 1) {
+                if (shuffleMode) {
+                    pos = ((MainActivity) getActivity()).shuffleNext();
+//                    Toast.makeText(rootView.getContext(), "Next id: " + pos, Toast.LENGTH_SHORT).show();
+                } else {
+                    pos = ((MainActivity) getActivity()).pos;
+                    if (pos + 1 > arrayList.size() - 1) {
                         pos = 0;
-                    }else {
+                    } else {
                         pos++;
                     }
                 }
@@ -120,9 +121,9 @@ public class HomeView extends Fragment {
                 buttonPressed = true;
                 boolean check = mp.isPlaying();
                 pos = ((MainActivity) getActivity()).pos;
-                if (pos-1 < 0) {
+                if (pos - 1 < 0) {
                     pos = arrayList.size() - 1;
-                }else{
+                } else {
                     pos--;
                 }
                 ((MainActivity) getActivity()).setPos(pos);
@@ -150,15 +151,15 @@ public class HomeView extends Fragment {
         btnShuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (((MainActivity)getActivity()).isShuffle){
+                if (((MainActivity) getActivity()).isShuffle) {
                     Toast.makeText(rootView.getContext(), "Shuffle is OFF", Toast.LENGTH_SHORT).show();
                     btnShuffle.setImageResource(R.drawable.no_shuffle);
-                    ((MainActivity)getActivity()).setShuffle(false);
+                    ((MainActivity) getActivity()).setShuffle(false);
                     shuffleMode = false;
-                }else{
+                } else {
                     Toast.makeText(rootView.getContext(), "Shuffle is ON", Toast.LENGTH_SHORT).show();
                     btnShuffle.setImageResource(R.drawable.shuffle);
-                    ((MainActivity)getActivity()).setShuffle(true);
+                    ((MainActivity) getActivity()).setShuffle(true);
                     shuffleMode = true;
                 }
             }
@@ -167,17 +168,17 @@ public class HomeView extends Fragment {
         btnRep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                repeatMode = ((MainActivity)getActivity()).isRepeat;
-                if (repeatMode){
+                repeatMode = ((MainActivity) getActivity()).isRepeat;
+                if (repeatMode) {
                     Toast.makeText(rootView.getContext(), "Repeat is OFF", Toast.LENGTH_SHORT).show();
                     btnRep.setImageResource(R.drawable.no_repeat);
                     repeatMode = false;
-                }else{
+                } else {
                     Toast.makeText(rootView.getContext(), "Repeat is ON", Toast.LENGTH_SHORT).show();
                     btnRep.setImageResource(R.drawable.repeat);
                     repeatMode = true;
                 }
-                ((MainActivity)getActivity()).setRepeat(repeatMode);
+                ((MainActivity) getActivity()).setRepeat(repeatMode);
             }
         });
 
@@ -214,6 +215,7 @@ public class HomeView extends Fragment {
         imgCover = rootView.findViewById(R.id.imageCover);
         mp = ((MainActivity) getActivity()).mediaPlayer;
         arrayList = ((MainActivity) getActivity()).arrayListSong;
+        pos = ((MainActivity) getActivity()).pos;
     }
 
     private void setTotalTimer() {
@@ -230,8 +232,8 @@ public class HomeView extends Fragment {
             public void run() {
                 txtCurrentTime.setText(timeFormat.format(mp.getCurrentPosition()));
                 seekBar.setProgress(mp.getCurrentPosition());
-                if (!repeatMode){
-                    if (buttonPressed){
+                if (!repeatMode) {
+                    if (buttonPressed) {
                         buttonPressed = false;
                         txtName.setText(arrayList.get(pos).getTitle());
                         Bitmap tmpBitmap = null;
@@ -244,20 +246,11 @@ public class HomeView extends Fragment {
                         setTotalTimer();
                         //
                         btnPlay.setImageResource(R.drawable.stop);
-                    }else{
-                        if (mp.getCurrentPosition() == 0) {
-                            try {
-                                if (shuffleMode){
-                                    // just get the current pos
-                                    pos = ((MainActivity)getActivity()).pos;
-                                }else {
-                                    if (pos + 1 > arrayList.size() - 1) {
-                                        pos = 0;
-                                    } else {
-                                        pos++;
-                                    }
-                                }
-//                                Toast.makeText(rootView.getContext(), "Here! + " + pos, Toast.LENGTH_SHORT).show();
+                    } else {
+                        try {
+                            if (pos != ((MainActivity) getActivity()).pos) {
+                                pos = ((MainActivity) getActivity()).pos;
+                                Toast.makeText(rootView.getContext(), "Here! + " + pos, Toast.LENGTH_SHORT).show();
                                 txtName.setText(arrayList.get(pos).getTitle());
                                 Bitmap tmpBitmap = null;
                                 tmpBitmap = arrayList.get(pos).getBitmap();
@@ -268,10 +261,11 @@ public class HomeView extends Fragment {
                                 }
                                 setTotalTimer();
                                 btnPlay.setImageResource(R.drawable.stop);
-                            }catch (Exception e){
-
                             }
+                        } catch (Exception e) {
+
                         }
+
                     }
                 }
                 handler.postDelayed(this, 100);
